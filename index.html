@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microelectrónica · Guía de Componentes</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --surface2: #1a1e2a;
+    --border: #2a2f3e;
+    --serie: #00c9a7;
+    --serie-dim: rgba(0,201,167,0.12);
+    --paralelo: #4f9fff;
+    --paralelo-dim: rgba(79,159,255,0.12);
+    --mixto: #c77dff;
+    --mixto-dim: rgba(199,125,255,0.12);
+    --text: #e8eaf0;
+    --muted: #7a8099;
+    --accent: #00c9a7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,201,167,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,201,167,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(20px, 4vw, 30px);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .header-desc {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+
+  /* Legend badges */
+  .legend {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+
+  .legend-item:hover { border-color: var(--muted); color: var(--text); }
+  .legend-item.active-s { border-color: var(--serie); color: var(--serie); }
+  .legend-item.active-p { border-color: var(--paralelo); color: var(--paralelo); }
+  .legend-item.active-m { border-color: var(--mixto); color: var(--mixto); }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-s { background: var(--serie); }
+  .dot-p { background: var(--paralelo); }
+  .dot-m { background: var(--mixto); }
+
+  /* Section */
+  .section { margin-bottom: 2.5rem; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.2rem;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 4px;
+  }
+
+  .label-s { background: var(--serie-dim); color: var(--serie); border: 1px solid rgba(0,201,167,0.3); }
+  .label-p { background: var(--paralelo-dim); color: var(--paralelo); border: 1px solid rgba(79,159,255,0.3); }
+  .label-m { background: var(--mixto-dim); color: var(--mixto); border: 1px solid rgba(199,125,255,0.3); }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Grid of cards */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  /* Component card */
+  .card {
+    background: var(--surface);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .card.tipo-s:hover { border-color: rgba(0,201,167,0.5); box-shadow: 0 8px 32px rgba(0,201,167,0.08); }
+  .card.tipo-p:hover { border-color: rgba(79,159,255,0.5); box-shadow: 0 8px 32px rgba(79,159,255,0.08); }
+  .card.tipo-m:hover { border-color: rgba(199,125,255,0.5); box-shadow: 0 8px 32px rgba(199,125,255,0.08); }
+
+  /* Photo area */
+  .card-photo {
+    width: 100%;
+    height: 170px;
+    background: var(--surface2);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+    filter: saturate(0.85);
+  }
+
+  .card:hover .card-photo img { transform: scale(1.04); filter: saturate(1); }
+
+  .card-photo-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+  }
+
+  .card-photo-fallback svg { opacity: 0.4; }
+
+  /* Color bar top */
+  .card-bar {
+    height: 3px;
+    width: 100%;
+  }
+  .bar-s { background: linear-gradient(90deg, var(--serie), transparent); }
+  .bar-p { background: linear-gradient(90deg, var(--paralelo), transparent); }
+  .bar-m { background: linear-gradient(90deg, var(--mixto), transparent); }
+
+  /* Card body */
+  .card-body { padding: 14px 16px 16px; }
+
+  .card-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .card-symbol {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 12px;
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  .tag-s { background: var(--serie-dim); color: var(--serie); }
+  .tag-p { background: var(--paralelo-dim); color: var(--paralelo); }
+  .tag-m { background: var(--mixto-dim); color: var(--mixto); }
+  .tag-gray { background: rgba(122,128,153,0.12); color: var(--muted); }
+
+  /* Faults section */
+  .faults {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 2rem;
+  }
+
+  .fault-card {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--border);
+  }
+
+  .fault-card.corto { border-left: 3px solid #ff5252; }
+  .fault-card.abierto { border-left: 3px solid #ffb347; }
+
+  .fault-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .fault-card.corto .fault-title { color: #ff5252; }
+  .fault-card.abierto .fault-title { color: #ffb347; }
+
+  .fault-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* Schematic note */
+  .esquema-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-top: 2rem;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .esquema-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .esquema-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 6px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .esquema-desc { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+  /* Hidden state */
+  .card.hidden { display: none; }
+  .section.hidden-section { display: none; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* stagger cards */
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.10s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.20s; }
+
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--border);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  @media (max-width: 600px) {
+    .faults { grid-template-columns: 1fr; }
+    .cards-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <p class="header-eyebrow">// Curso práctico · Sábados</p>
+    <h1>Microelectrónica<br><span>para celulares</span></h1>
+    <p class="header-desc">Guía de componentes electrónicos: identificación, función y tipo de conexión. Usá los filtros para ver solo una categoría.</p>
+  </header>
+
+  <!-- Legend / Filter -->
+  <div class="legend">
+    <div class="legend-item active-s" data-filter="s" onclick="toggleFilter('s', this)">
+      <span class="dot dot-s"></span> En serie
+    </div>
+    <div class="legend-item active-p" data-filter="p" onclick="toggleFilter('p', this)">
+      <span class="dot dot-p"></span> En paralelo
+    </div>
+    <div class="legend-item active-m" data-filter="m" onclick="toggleFilter('m', this)">
+      <span class="dot dot-m"></span> Mixtos
+    </div>
+  </div>
+
+  <!-- SERIE -->
+  <div class="section" id="section-s">
+    <div class="section-header">
+      <span class="section-label label-s">En Serie</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="cards-grid">
+
+      <div class="card tipo-s">
+        <div class="card-bar bar-s"></div>
+        <div class="card-photo">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Resistor.jpg/320px-Resistor.jpg"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+               alt="Resistencia SMD">
+          <div class="card-photo-fallback" style="display:none">
+            <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="9" width="18" height="6" rx="2" stroke-width="1.5"/><line x1="0" y1="12" x2="3" y2="12" stroke-width="1.5"/><line x1="21" y1="12" x2="24" y2="12" stroke-width="1.5"/></svg>
+            <span style="font-size:12px">Resistencia</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-name">Resistencia</p>
+          <p class="card-symbol">Símbolo: ─[R]─ &nbsp;|&nbsp; Unidad: Ω (ohm)</p>
+          <p class="card-desc">Limita el flujo de corriente en el circuito. En placas SMD son extremadamente pequeñas (0402, 0603). Bajo el microscopio aparecen como pequeños bloques negros o beige con código numérico.</p>
+          <div class="card-tags">
+            <span class="tag tag-s">SERIE</span>
+            <span class="tag tag-gray">SMD</span>
+            <span class="tag tag-gray">Pasivo</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card tipo-s">
+        <div class="card-bar bar-s"></div>
+        <div class="card-photo">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/SMD_inductors_of_different_sizes.jpg/320px-SMD_inductors_of_different_sizes.jpg"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+               alt="Bobina / Inductor">
+          <div class="card-photo-fallback" style="display:none">
+            <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M2 12 Q4 8 6 12 Q8 16 10 12 Q12 8 14 12 Q16 16 18 12 Q20 8 22 12" stroke-width="1.5" fill="none"/></svg>
+            <span style="font-size:12px">Bobina</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-name">Bobina / Inductor</p>
+          <p class="card-symbol">Símbolo: ─(((─ &nbsp;|&nbsp; Unidad: H (henry)</p>
+          <p class="card-desc">Almacena energía en forma de campo magnético. Resiste cambios bruscos de corriente. Se usa en fuentes de poder y circuitos de RF del celular.</p>
+          <div class="card-tags">
+            <span class="tag tag-s">SERIE</span>
+            <span class="tag tag-gray">RF</span>
+            <span class="tag tag-gray">Pasivo</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card tipo-s">
+        <div class="card-bar bar-s"></div>
+        <div class="card-photo">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/RFfilter.jpg/320px-RFfilter.jpg"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+               alt="Filtro RF">
+          <div class="card-photo-fallback" style="display:none">
+            <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polygon points="3,6 21,6 14,13 14,19 10,21 10,13" stroke-width="1.5"/></svg>
+            <span style="font-size:12px">Filtro</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-name">Filtro (SAW / BAW)</p>
+          <p class="card-symbol">Símbolo: ─[F]─ &nbsp;|&nbsp; Frecuencia: MHz/GHz</p>
+          <p class="card-desc">Deja pasar solo ciertas frecuencias de señal. Muy usado en la sección de antena/RF para separar bandas. En celulares modernos son filtros SAW o BAW de alta frecuencia.</p>
+          <div class="card-tags">
+            <span class="tag tag-s">SERIE</span>
+            <span class="tag tag-gray">RF</span>
+            <span class="tag tag-gray">SAW/BAW</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PARALELO -->
+  <div class="section" id="section-p">
+    <div class="section-header">
+      <span class="section-label label-p">En Paralelo</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="cards-grid">
+
+      <div class="card tipo-p">
+        <div class="card-bar bar-p"></div>
+        <div class="card-photo">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Capacitors_%287189597135%29.jpg/320px-Capacitors_%287189597135%29.jpg"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+               alt="Capacitor SMD">
+          <div class="card-photo-fallback" style="display:none">
+            <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><line x1="8" y1="6" x2="8" y2="18" stroke-width="2"/><line x1="16" y1="6" x2="16" y2="18" stroke-width="2"/><line x1="2" y1="12" x2="8" y2="12" stroke-width="1.5"/><line x1="16" y1="12" x2="22" y2="12" stroke-width="1.5"/></svg>
+            <span style="font-size:12px">Capacitor</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-name">Capacitor</p>
+          <p class="card-symbol">Símbolo: ─|  |─ &nbsp;|&nbsp; Unidad: F (farad)</p>
+          <p class="card-desc">Almacena y libera energía eléctrica. Filtra ruido y estabiliza voltaje. Muy abundante en placas de celulares. Pueden ser cerámicos (beige/gris) o electrolíticos (cilíndricos).</p>
+          <div class="card-tags">
+            <span class="tag tag-p">PARALELO</span>
+            <span class="tag tag-gray">Pasivo</span>
+            <span class="tag tag-gray">Desacople</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card tipo-p">
+        <div class="card-bar bar-p"></div>
+        <div class="card-photo">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Diode_pinout_en_fr.svg/320px-Diode_pinout_en_fr.svg.png"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+               alt="Diodo">
+          <div class="card-photo-fallback" style="display:none">
+            <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polygon points="6,6 6,18 18,12" stroke-width="1.5"/><line x1="18" y1="6" x2="18" y2="18" stroke-width="1.5"/><line x1="2" y1="12" x2="6" y2="12" stroke-width="1.5"/><line x1="18" y1="12" x2="22" y2="12" stroke-width="1.5"/></svg>
+            <span style="font-size:12px">Diodo</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-name">Diodo</p>
+          <p class="card-symbol">Símbolo: ─▷|─ &nbsp;|&nbsp; Polarización: ánodo / cátodo</p>
+          <p class="card-desc">Permite el flujo de corriente en una sola dirección. Protege el circuito de inversión de polaridad. En celulares se usan diodos Zener (regulación) y Schottky (alta velocidad).</p>
+          <div class="card-tags">
+            <span class="tag tag-p">PARALELO</span>
+            <span class="tag tag-gray">Protección</span>
+            <span class="tag tag-gray">Zener / Schottky</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MIXTOS -->
+  <div class="section" id="section-m">
+    <div class="section-header">
+      <span class="section-label label-m">Mixtos</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="cards-grid">
+
+      <div class="card tipo-m">
+        <div class="card-bar bar-m"></div>
+        <div class="card-photo">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Three_IC_circuit_chips.JPG/320px-Three_IC_circuit_chips.JPG"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+               alt="Circuito Integrado">
+          <div class="card-photo-fallback" style="display:none">
+            <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="6" y="6" width="12" height="12" rx="2" stroke-width="1.5"/><line x1="9" y1="6" x2="9" y2="3" stroke-width="1.5"/><line x1="12" y1="6" x2="12" y2="3" stroke-width="1.5"/><line x1="15" y1="6" x2="15" y2="3" stroke-width="1.5"/><line x1="9" y1="18" x2="9" y2="21" stroke-width="1.5"/><line x1="12" y1="18" x2="12" y2="21" stroke-width="1.5"/><line x1="15" y1="18" x2="15" y2="21" stroke-width="1.5"/><line x1="6" y1="9" x2="3" y2="9" stroke-width="1.5"/><line x1="6" y1="15" x2="3" y2="15" stroke-width="1.5"/><line x1="18" y1="9" x2="21" y2="9" stroke-width="1.5"/><line x1="18" y1="15" x2="21" y2="15" stroke-width="1.5"/></svg>
+            <span style="font-size:12px">IC</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-name">Circuito Integrado (IC)</p>
+          <p class="card-symbol">Ej: procesador, PMIC, codec de audio, memoria</p>
+          <p class="card-desc">Contiene miles o millones de componentes en un solo chip. Combina conexiones en serie y en paralelo internamente. Es el componente más complejo de la placa: CPU, GPU, controlador de carga, etc.</p>
+          <div class="card-tags">
+            <span class="tag tag-m">MIXTO</span>
+            <span class="tag tag-gray">Activo</span>
+            <span class="tag tag-gray">BGA / QFN</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card tipo-m">
+        <div class="card-bar bar-m"></div>
+        <div class="card-photo">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Transistor-photo.jpg/320px-Transistor-photo.jpg"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+               alt="Transistor">
+          <div class="card-photo-fallback" style="display:none">
+            <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><line x1="8" y1="6" x2="8" y2="18" stroke-width="2"/><line x1="2" y1="12" x2="8" y2="12" stroke-width="1.5"/><line x1="8" y1="9" x2="16" y2="5" stroke-width="1.5"/><line x1="8" y1="15" x2="16" y2="19" stroke-width="1.5"/><line x1="16" y1="5" x2="16" y2="3" stroke-width="1.5"/><line x1="16" y1="19" x2="16" y2="21" stroke-width="1.5"/></svg>
+            <span style="font-size:12px">Transistor</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-name">Transistor (MOSFET / BJT)</p>
+          <p class="card-symbol">Pines: Base / Emisor / Colector (BJT) | G / S / D (MOS)</p>
+          <p class="card-desc">Actúa como interruptor o amplificador de señal. Tiene tanto carácter de componente en serie (paso de corriente) como en paralelo (en circuitos de conmutación). Fundamental en las etapas de potencia.</p>
+          <div class="card-tags">
+            <span class="tag tag-m">MIXTO</span>
+            <span class="tag tag-gray">Activo</span>
+            <span class="tag tag-gray">SOT-23</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Fallas -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label" style="background:rgba(255,82,82,0.12);color:#ff5252;border:1px solid rgba(255,82,82,0.3);">Diagnóstico de Fallas</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="faults">
+      <div class="fault-card corto">
+        <p class="fault-title">⚡ CORTO CIRCUITO</p>
+        <p class="fault-desc">Dos puntos que NO deberían estar conectados se unen. Genera calor excesivo. Se detecta midiendo resistencia muy baja (≈ 0 Ω) entre puntos que no deberían conducir.</p>
+      </div>
+      <div class="fault-card abierto">
+        <p class="fault-title">✂ CIRCUITO ABIERTO</p>
+        <p class="fault-desc">Una conexión que SÍ debería estar completa está interrumpida. El multímetro no pita al medir continuidad donde debería haber paso de corriente.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Esquemáticos -->
+  <div class="esquema-box">
+    <div class="esquema-icon">🗺</div>
+    <div>
+      <p class="esquema-title">Esquemáticos</p>
+      <p class="esquema-desc">Son el "mapa" del circuito: muestran todos los componentes con sus símbolos estándar y cómo están conectados. Son indispensables para diagnosticar fallas, porque permiten rastrear qué componentes están relacionados entre sí y dónde buscar el problema. Cada componente tiene su símbolo propio (capacitor = dos líneas paralelas, resistencia = rectángulo o zigzag, bobina = espirales, diodo = triángulo con barra, IC = rectángulo con pines).</p>
+    </div>
+  </div>
+
+  <footer>
+    <span>// Microelectrónica para celulares · Notas de clase</span>
+    <span>Curso práctico · Sábados</span>
+  </footer>
+
+</div>
+
+<script>
+  const activeFilters = new Set(['s', 'p', 'm']);
+
+  function toggleFilter(type, el) {
+    if (activeFilters.has(type)) {
+      if (activeFilters.size === 1) return; // Keep at least one
+      activeFilters.delete(type);
+      el.classList.remove('active-' + type);
+    } else {
+      activeFilters.add(type);
+      el.classList.add('active-' + type);
+    }
+    updateVisibility();
+  }
+
+  function updateVisibility() {
+    ['s', 'p', 'm'].forEach(t => {
+      const section = document.getElementById('section-' + t);
+      if (section) {
+        section.style.display = activeFilters.has(t) ? '' : 'none';
+      }
+    });
+  }
+</script>
+</body>
+</html>
