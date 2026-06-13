@@ -258,11 +258,25 @@
   }
 
   .tag {
+    border: 0;
+    cursor: pointer;
+    appearance: none;
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     padding: 3px 7px;
     border-radius: 3px;
     letter-spacing: 0.05em;
+    transition: transform 0.15s ease, filter 0.15s ease;
+  }
+
+  .tag:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+
+  .tag:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 1px;
   }
 
   .tag-s { background: var(--serie-dim); color: var(--serie); }
@@ -332,6 +346,71 @@
   /* Hidden state */
   .card.hidden { display: none; }
   .section.hidden-section { display: none; }
+
+  /* Tag info modal */
+  .tag-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 8, 14, 0.62);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 1rem;
+  }
+
+  .tag-modal-overlay.open {
+    display: flex;
+  }
+
+  .tag-modal {
+    width: min(520px, 100%);
+    background: #f7f9fc;
+    color: #1e2430;
+    border-radius: 12px;
+    border: 1px solid #d6dce7;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+    padding: 1rem 1rem 0.9rem;
+    animation: modalIn 0.18s ease;
+  }
+
+  .tag-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .tag-modal-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f1724;
+  }
+
+  .tag-modal-close {
+    border: 1px solid #c8d1e2;
+    background: #ffffff;
+    color: #364055;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 17px;
+    line-height: 1;
+  }
+
+  .tag-modal-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #3b455b;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
 
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(12px); }
@@ -409,9 +488,9 @@
           <p class="card-symbol">Símbolo: ─[R]─ &nbsp;|&nbsp; Unidad: Ω (ohm)</p>
           <p class="card-desc">Limita el flujo de corriente en el circuito. En placas SMD son extremadamente pequeñas (0402, 0603). Bajo el microscopio aparecen como pequeños bloques negros o beige con código numérico.</p>
           <div class="card-tags">
-            <span class="tag tag-s">SERIE</span>
-            <span class="tag tag-gray">SMD</span>
-            <span class="tag tag-gray">Pasivo</span>
+            <button type="button" class="tag tag-s">SERIE</button>
+            <button type="button" class="tag tag-gray">SMD</button>
+            <button type="button" class="tag tag-gray">Pasivo</button>
           </div>
         </div>
       </div>
@@ -432,9 +511,9 @@
           <p class="card-symbol">Símbolo: ─(((─ &nbsp;|&nbsp; Unidad: H (henry)</p>
           <p class="card-desc">Almacena energía en forma de campo magnético. Resiste cambios bruscos de corriente. Se usa en fuentes de poder y circuitos de RF del celular.</p>
           <div class="card-tags">
-            <span class="tag tag-s">SERIE</span>
-            <span class="tag tag-gray">RF</span>
-            <span class="tag tag-gray">Pasivo</span>
+            <button type="button" class="tag tag-s">SERIE</button>
+            <button type="button" class="tag tag-gray">RF</button>
+            <button type="button" class="tag tag-gray">Pasivo</button>
           </div>
         </div>
       </div>
@@ -455,9 +534,9 @@
           <p class="card-symbol">Símbolo: ─[F]─ &nbsp;|&nbsp; Frecuencia: MHz/GHz</p>
           <p class="card-desc">Deja pasar solo ciertas frecuencias de señal. Muy usado en la sección de antena/RF para separar bandas. En celulares modernos son filtros SAW o BAW de alta frecuencia.</p>
           <div class="card-tags">
-            <span class="tag tag-s">SERIE</span>
-            <span class="tag tag-gray">RF</span>
-            <span class="tag tag-gray">SAW/BAW</span>
+            <button type="button" class="tag tag-s">SERIE</button>
+            <button type="button" class="tag tag-gray">RF</button>
+            <button type="button" class="tag tag-gray">SAW/BAW</button>
           </div>
         </div>
       </div>
@@ -489,9 +568,9 @@
           <p class="card-symbol">Símbolo: ─|  |─ &nbsp;|&nbsp; Unidad: F (farad)</p>
           <p class="card-desc">Almacena y libera energía eléctrica. Filtra ruido y estabiliza voltaje. Muy abundante en placas de celulares. Pueden ser cerámicos (beige/gris) o electrolíticos (cilíndricos).</p>
           <div class="card-tags">
-            <span class="tag tag-p">PARALELO</span>
-            <span class="tag tag-gray">Pasivo</span>
-            <span class="tag tag-gray">Desacople</span>
+            <button type="button" class="tag tag-p">PARALELO</button>
+            <button type="button" class="tag tag-gray">Pasivo</button>
+            <button type="button" class="tag tag-gray">Desacople</button>
           </div>
         </div>
       </div>
@@ -512,9 +591,9 @@
           <p class="card-symbol">Símbolo: ─▷|─ &nbsp;|&nbsp; Polarización: ánodo / cátodo</p>
           <p class="card-desc">Permite el flujo de corriente en una sola dirección. Protege el circuito de inversión de polaridad. En celulares se usan diodos Zener (regulación) y Schottky (alta velocidad).</p>
           <div class="card-tags">
-            <span class="tag tag-p">PARALELO</span>
-            <span class="tag tag-gray">Protección</span>
-            <span class="tag tag-gray">Zener / Schottky</span>
+            <button type="button" class="tag tag-p">PARALELO</button>
+            <button type="button" class="tag tag-gray">Protección</button>
+            <button type="button" class="tag tag-gray">Zener / Schottky</button>
           </div>
         </div>
       </div>
@@ -546,9 +625,9 @@
           <p class="card-symbol">Ej: procesador, PMIC, codec de audio, memoria</p>
           <p class="card-desc">Contiene miles o millones de componentes en un solo chip. Combina conexiones en serie y en paralelo internamente. Es el componente más complejo de la placa: CPU, GPU, controlador de carga, etc.</p>
           <div class="card-tags">
-            <span class="tag tag-m">MIXTO</span>
-            <span class="tag tag-gray">Activo</span>
-            <span class="tag tag-gray">BGA / QFN</span>
+            <button type="button" class="tag tag-m">MIXTO</button>
+            <button type="button" class="tag tag-gray">Activo</button>
+            <button type="button" class="tag tag-gray">BGA / QFN</button>
           </div>
         </div>
       </div>
@@ -569,9 +648,9 @@
           <p class="card-symbol">Pines: Base / Emisor / Colector (BJT) | G / S / D (MOS)</p>
           <p class="card-desc">Actúa como interruptor o amplificador de señal. Tiene tanto carácter de componente en serie (paso de corriente) como en paralelo (en circuitos de conmutación). Fundamental en las etapas de potencia.</p>
           <div class="card-tags">
-            <span class="tag tag-m">MIXTO</span>
-            <span class="tag tag-gray">Activo</span>
-            <span class="tag tag-gray">SOT-23</span>
+            <button type="button" class="tag tag-m">MIXTO</button>
+            <button type="button" class="tag tag-gray">Activo</button>
+            <button type="button" class="tag tag-gray">SOT-23</button>
           </div>
         </div>
       </div>
@@ -613,8 +692,77 @@
 
 </div>
 
+<div class="tag-modal-overlay" id="tagModalOverlay" aria-hidden="true">
+  <div class="tag-modal" role="dialog" aria-modal="true" aria-labelledby="tagModalTitle" aria-describedby="tagModalDesc">
+    <div class="tag-modal-head">
+      <h2 class="tag-modal-title" id="tagModalTitle">Etiqueta</h2>
+      <button type="button" class="tag-modal-close" id="tagModalClose" aria-label="Cerrar">×</button>
+    </div>
+    <p class="tag-modal-desc" id="tagModalDesc"></p>
+  </div>
+</div>
+
 <script>
   const activeFilters = new Set(['s', 'p', 'm']);
+  const tagInfo = {
+    'SERIE': {
+      title: 'Serie',
+      desc: 'Indica que el componente se encuentra en un camino principal de corriente; si se interrumpe, suele afectar todo el tramo del circuito.'
+    },
+    'PARALELO': {
+      title: 'Paralelo',
+      desc: 'Indica conexión en ramas alternativas. Se usa mucho para filtrado y estabilidad sin cortar totalmente la línea principal.'
+    },
+    'MIXTO': {
+      title: 'Mixto',
+      desc: 'El componente trabaja con estructuras internas o externas que combinan conexiones en serie y en paralelo.'
+    },
+    'SMD': {
+      title: 'SMD',
+      desc: 'Surface-Mount Device: componente de montaje superficial, soldado directamente sobre la placa y de tamaño muy reducido.'
+    },
+    'PASIVO': {
+      title: 'Pasivo',
+      desc: 'Componente que no amplifica señal ni genera energía por sí mismo; principalmente limita, filtra o almacena energía.'
+    },
+    'RF': {
+      title: 'RF',
+      desc: 'Radiofrecuencia: etiqueta usada en componentes que operan señales de alta frecuencia, típicas de antena y comunicaciones.'
+    },
+    'SAW/BAW': {
+      title: 'SAW / BAW',
+      desc: 'Tecnologías de filtros de RF de alta precisión para seleccionar bandas de frecuencia en equipos móviles.'
+    },
+    'DESACOPLE': {
+      title: 'Desacople',
+      desc: 'Capacitores o redes para reducir ruido y estabilizar el voltaje cerca de circuitos sensibles.'
+    },
+    'PROTECCIÓN': {
+      title: 'Protección',
+      desc: 'Componente orientado a proteger líneas o entradas frente a polaridad inversa, picos o condiciones anómalas.'
+    },
+    'ZENER / SCHOTTKY': {
+      title: 'Zener / Schottky',
+      desc: 'Tipos de diodo comunes en electrónica móvil: Zener para regulación y Schottky para conmutación rápida con baja caída.'
+    },
+    'ACTIVO': {
+      title: 'Activo',
+      desc: 'Componente que puede controlar o amplificar señal, y requiere polarización o control para operar correctamente.'
+    },
+    'BGA / QFN': {
+      title: 'BGA / QFN',
+      desc: 'Encapsulados de circuitos integrados: BGA usa esferas de soldadura debajo del chip y QFN usa pads perimetrales inferiores.'
+    },
+    'SOT-23': {
+      title: 'SOT-23',
+      desc: 'Encapsulado pequeño de 3 o más pines muy usado en transistores y reguladores compactos.'
+    }
+  };
+
+  const tagModalOverlay = document.getElementById('tagModalOverlay');
+  const tagModalTitle = document.getElementById('tagModalTitle');
+  const tagModalDesc = document.getElementById('tagModalDesc');
+  const tagModalClose = document.getElementById('tagModalClose');
 
   function toggleFilter(type, el) {
     if (activeFilters.has(type)) {
@@ -636,6 +784,46 @@
       }
     });
   }
+
+  function getTagKey(rawText) {
+    return rawText.trim().toUpperCase();
+  }
+
+  function openTagModal(buttonEl) {
+    const key = getTagKey(buttonEl.textContent || '');
+    const info = tagInfo[key] || {
+      title: buttonEl.textContent.trim(),
+      desc: 'Etiqueta informativa de clasificación del componente electrónico.'
+    };
+
+    tagModalTitle.textContent = info.title;
+    tagModalDesc.textContent = info.desc;
+    tagModalOverlay.classList.add('open');
+    tagModalOverlay.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeTagModal() {
+    tagModalOverlay.classList.remove('open');
+    tagModalOverlay.setAttribute('aria-hidden', 'true');
+  }
+
+  document.querySelectorAll('.card-tags .tag').forEach(tagButton => {
+    tagButton.addEventListener('click', function () {
+      openTagModal(this);
+    });
+  });
+
+  tagModalClose.addEventListener('click', closeTagModal);
+
+  tagModalOverlay.addEventListener('click', function (event) {
+    if (event.target === tagModalOverlay) closeTagModal();
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && tagModalOverlay.classList.contains('open')) {
+      closeTagModal();
+    }
+  });
 </script>
 </body>
 </html>
